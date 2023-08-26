@@ -26,6 +26,7 @@
 	status = "okay";
 };
 
+/* LCD */
 &lcdif {
 	assigned-clocks = <&clks IMX6UL_CLK_LCDIF_PRE_SEL>;
 	assigned-clock-parents = <&clks IMX6UL_CLK_PLL5_VIDEO_DIV>;
@@ -84,7 +85,44 @@
 	status = "okay";
 };
 
+/* GT1151 */
+&i2c1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	gtxx_tsc@14 {
+		compatible = "goodix,gt1151";
+		pinctrl-0 = <&pinctrl_tsc_reset>;
+		pinctrl-1 = <&pinctrl_tsc_irq>;
+		reg = <0x14>;
+		status = "okay";
+		/*gpio*/
+		reset-gpios = <&gpio3 4 GPIO_ACTIVE_LOW>;
+		irq-gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+		/*interrupt­*/
+		interrupt-parent = <&gpio5>;
+		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
+		irq-flags = <2>;		/*1:rising 2: falling*/	
+	};
+};
 
+&iomuxc {
+	pinctrl_tsc_reset: tscresetgrp {
+		fsl,pins = <
+			/* used for tsc reset */
+			MX6UL_PAD_LCD_RESET__GPIO3_IO04		0x05
+		>;
+	};
+};
+
+&iomuxc_snvs {
+	pinctrl_tsc_irq: tsc_irq {
+		fsl,pins = <
+			MX6ULL_PAD_SNVS_TAMPER9__GPIO5_IO09        0x4001b8b0
+		>;
+	};
+};
+
+/* EMMC */
 &usdhc2 {
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc2_8bit>;
